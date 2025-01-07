@@ -26,8 +26,7 @@ def combine_csv_to_excel(csv_folder, output_excel_file):
     combined_df = pd.concat(dataframes, ignore_index=True)
 
     # Save to Excel
-    # combined_df.to_excel(output_excel_file, index=False, engine='openpyxl')
-    combined_df.to_excel(output_excel_file, index=False)
+    combined_df.to_excel(output_excel_file, index=False, engine='openpyxl')
 
     print(f"Combined data has been saved to {output_excel_file}")
 
