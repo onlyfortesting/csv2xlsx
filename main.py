@@ -46,10 +46,6 @@ def split_excel_to_csv(input_excel_file, output_folder):
 
     # Group by the 'Source File' column and save each group as a CSV file
     for source_file, group in df.groupby('Source File'):
-        if pd.isna(source_file):
-            print("Encountered a row with no 'Source File' value. Skipping.")
-            continue
-
         # Remove the 'Source File' column before saving
         group = group.drop(columns=['Source File'])
         # print(group)
