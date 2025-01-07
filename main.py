@@ -11,6 +11,7 @@ def combine_csv_to_excel(csv_folder, output_excel_file):
             file_path = os.path.join(csv_folder, file)
             # Read CSV into a dataframe
             df = pd.read_csv(file_path)
+            df.insert(0, 'Source File', [file] + [None] * (len(df) - 1))
             dataframes.append(df)
 
     # Check if there are any CSV files
