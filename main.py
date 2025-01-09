@@ -60,7 +60,7 @@ def split_excel_to_csv(input_excel_file, output_folder):
 class FileInputApp:
     def __init__(self, root):
         self.root = root
-        self.root.title("File Input GUI")
+        self.root.title("CSV to XLSX")
         # self.root.geometry("600x200")
 
         # Create and configure main frame
