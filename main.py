@@ -3,8 +3,6 @@ import pandas as pd
 import tkinter as tk
 from tkinter import filedialog, ttk
 from pathlib import Path
-import glob
-from pathlib import Path
 
 
 def combine_csv_to_excel(csv_folder, output_excel_file):
@@ -17,7 +15,7 @@ def combine_csv_to_excel(csv_folder, output_excel_file):
             file_path = os.path.join(csv_folder, file)
             # Read CSV into a dataframe
             df = pd.read_csv(file_path)
-            # df.insert(0, 'Source File', [file] + [None] * (len(df) - 1))
+
             df.insert(0, 'Source File', [file] * (len(df)))
             dataframes.append(df)
 
@@ -51,7 +49,6 @@ def split_excel_to_csv(input_excel_file, output_folder):
     for source_file, group in df.groupby('Source File'):
         # Remove the 'Source File' column before saving
         group = group.drop(columns=['Source File'])
-        # print(group)
 
         # Save the group to a CSV file
         output_csv_file = os.path.join(output_folder, source_file)
@@ -113,8 +110,17 @@ class FileInputApp:
         self.status_label.grid(row=2, column=0, columnspan=2, pady=10)
 
     def save_xlsx(self):
+        if not self.folder_path.get():
+            tk.messagebox.showwarning(
+                title="Warning", message="Please select the CSV folder first")
+            return
+
+        initial_dir = Path(self.folder_path.get())
         save_file = filedialog.asksaveasfile(
-            title='Save Excel file', mode='w', defaultextension=".xlsx")
+            title='Save Excel file',
+            initialdir=initial_dir.parent.absolute(),
+            mode='w',
+            defaultextension=".xlsx")
 
         if save_file is None:
             return
@@ -125,16 +131,23 @@ class FileInputApp:
             text="Done. Saved to "+save_file.name, foreground="green")
 
     def split_xlsx(self):
-        save_file = filedialog.asksaveasfile(
-            title='Save Excel file', mode='w', defaultextension=".xlsx")
-
-        if save_file is None:
+        if not self.file_path.get():
+            tk.messagebox.showwarning(
+                title="Warning", message="Please select the Excel file first")
             return
 
-        combine_csv_to_excel(self.folder_path.get(), save_file.name)
+        initial_dir = Path(self.file_path.get())
+        folder_selected = filedialog.askdirectory(
+            title="Choose folder to save CSV output",
+            initialdir=initial_dir.parent.absolute())
+
+        if not folder_selected:
+            return
+
+        split_excel_to_csv(self.file_path.get(), folder_selected)
 
         self.status_label.config(
-            text="Done. Saved to "+save_file.name, foreground="green")
+            text="Done. Saved to "+str(Path(folder_selected).absolute()), foreground="green")
 
     def browse_folder(self):
         folder_selected = filedialog.askdirectory(
@@ -151,7 +164,6 @@ class FileInputApp:
         )
         if file_selected:
             self.file_path.set(file_selected)
-            self.validate_paths()
 
     def validate_paths(self):
         folder = self.folder_path.get()
@@ -179,14 +191,3 @@ def main():
 
 
 main()
-
-
-# Folder containing the CSV files
-csv_folder = "./csv"
-
-# Output Excel file
-output_excel_file = "combined_data.xlsx"
-
-# Combine CSV files into an Excel file
-# combine_csv_to_excel(csv_folder, output_excel_file)
-# split_excel_to_csv("combined_data.xlsx", "splitted")
