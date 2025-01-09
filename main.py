@@ -105,7 +105,7 @@ class FileInputApp:
         self.file_button.grid(row=0, column=1, padx=5)
 
         self.process_file_button = ttk.Button(
-            self.file_frame, text="Process", command=self.browse_file)
+            self.file_frame, text="Process", command=self.split_xlsx)
         self.process_file_button.grid(row=0, column=2, padx=5)
 
         # Status label
@@ -113,23 +113,34 @@ class FileInputApp:
         self.status_label.grid(row=2, column=0, columnspan=2, pady=10)
 
     def save_xlsx(self):
-        f = filedialog.asksaveasfile(
+        save_file = filedialog.asksaveasfile(
             title='Save Excel file', mode='w', defaultextension=".xlsx")
-        if f is None:
+
+        if save_file is None:
             return
-        print(f)
+
+        combine_csv_to_excel(self.folder_path.get(), save_file.name)
+
+        self.status_label.config(
+            text="Done. Saved to "+save_file.name, foreground="green")
+
+    def split_xlsx(self):
+        save_file = filedialog.asksaveasfile(
+            title='Save Excel file', mode='w', defaultextension=".xlsx")
+
+        if save_file is None:
+            return
+
+        combine_csv_to_excel(self.folder_path.get(), save_file.name)
+
+        self.status_label.config(
+            text="Done. Saved to "+save_file.name, foreground="green")
 
     def browse_folder(self):
         folder_selected = filedialog.askdirectory(
             title="Select Folder containing all CSV files")
         if folder_selected:
             self.folder_path.set(folder_selected)
-            self.validate_paths()
-
-            path = Path(folder_selected)
-            output_excel_file = path.parent.joinpath('output.xlsx').absolute()
-
-            combine_csv_to_excel(folder_selected, output_excel_file)
 
     def browse_file(self):
         file_selected = filedialog.askopenfilename(
