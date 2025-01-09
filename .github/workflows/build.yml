@@ -23,15 +23,6 @@ jobs:
         with:
           nuitka-version: main
           script-name: main.py
-          # mode: app
-          # standalone: true
-          # onefile: true
-          follow-imports: true
-          # include-module: |
-          #   pandas
-          #   tkinter
-          #   os
-          #   pathlib
           enable-plugins: tk-inter
 
         # Uploads artifacts
@@ -42,6 +33,7 @@ jobs:
           path: |
             build/main.exe
             build/main.dist
+            build/main.build
           # path: build/main.exe
           include-hidden-files: true
 
