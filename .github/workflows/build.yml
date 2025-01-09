@@ -25,7 +25,7 @@ jobs:
           script-name: main.py
           # mode: app
           # standalone: true
-          onefile: true
+          # onefile: true
           follow-imports: true
           # include-module: |
           #   pandas
@@ -39,9 +39,10 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: ${{ runner.os }} Build
-          # path: |
-          #   build/main.dist/main.exe
-          path: build/main.exe
+          path: |
+            build/main.exe
+            build/main.dist
+          # path: build/main.exe
           include-hidden-files: true
 
       - name: Create Release
