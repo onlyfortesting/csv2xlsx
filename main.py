@@ -3,8 +3,6 @@ import pandas as pd
 import tkinter as tk
 from tkinter import filedialog, ttk
 from pathlib import Path
-import glob
-from pathlib import Path
 
 
 def combine_csv_to_excel(csv_folder, output_excel_file):
@@ -113,6 +111,11 @@ class FileInputApp:
         self.status_label.grid(row=2, column=0, columnspan=2, pady=10)
 
     def save_xlsx(self):
+        if not self.folder_path.get():
+            tk.messagebox.showwarning(
+                title="Warning", message="Please select the CSV folder first")
+            return
+
         initial_dir = Path(self.folder_path.get())
         save_file = filedialog.asksaveasfile(
             title='Save Excel file',
@@ -129,9 +132,14 @@ class FileInputApp:
             text="Done. Saved to "+save_file.name, foreground="green")
 
     def split_xlsx(self):
+        if not self.file_path.get():
+            tk.messagebox.showwarning(
+                title="Warning", message="Please select the Excel file first")
+            return
+
         initial_dir = Path(self.file_path.get())
         folder_selected = filedialog.askdirectory(
-            title="Select Folder containing all CSV files",
+            title="Choose folder to save CSV output",
             initialdir=initial_dir.parent.absolute())
 
         if not folder_selected:
