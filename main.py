@@ -15,7 +15,7 @@ def combine_csv_to_excel(csv_folder, output_excel_file):
             file_path = os.path.join(csv_folder, file)
             # Read CSV into a dataframe
             df = pd.read_csv(file_path)
-            # df.insert(0, 'Source File', [file] + [None] * (len(df) - 1))
+
             df.insert(0, 'Source File', [file] * (len(df)))
             dataframes.append(df)
 
@@ -49,7 +49,6 @@ def split_excel_to_csv(input_excel_file, output_folder):
     for source_file, group in df.groupby('Source File'):
         # Remove the 'Source File' column before saving
         group = group.drop(columns=['Source File'])
-        # print(group)
 
         # Save the group to a CSV file
         output_csv_file = os.path.join(output_folder, source_file)
@@ -192,14 +191,3 @@ def main():
 
 
 main()
-
-
-# Folder containing the CSV files
-csv_folder = "./csv"
-
-# Output Excel file
-output_excel_file = "combined_data.xlsx"
-
-# Combine CSV files into an Excel file
-# combine_csv_to_excel(csv_folder, output_excel_file)
-# split_excel_to_csv("combined_data.xlsx", "splitted")
