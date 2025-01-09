@@ -32,9 +32,7 @@ jobs:
           #   tkinter
           #   os
           #   pathlib
-          enable-plugins: |
-            tk-inter
-            numpy
+          enable-plugins: tk-inter
 
         # Uploads artifacts
       - name: Upload Artifacts
