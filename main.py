@@ -113,8 +113,12 @@ class FileInputApp:
         self.status_label.grid(row=2, column=0, columnspan=2, pady=10)
 
     def save_xlsx(self):
+        initial_dir = Path(self.folder_path.get())
         save_file = filedialog.asksaveasfile(
-            title='Save Excel file', mode='w', defaultextension=".xlsx")
+            title='Save Excel file',
+            initialdir=initial_dir.parent.absolute(),
+            mode='w',
+            defaultextension=".xlsx")
 
         if save_file is None:
             return
@@ -125,16 +129,18 @@ class FileInputApp:
             text="Done. Saved to "+save_file.name, foreground="green")
 
     def split_xlsx(self):
-        save_file = filedialog.asksaveasfile(
-            title='Save Excel file', mode='w', defaultextension=".xlsx")
+        initial_dir = Path(self.file_path.get())
+        folder_selected = filedialog.askdirectory(
+            title="Select Folder containing all CSV files",
+            initialdir=initial_dir.parent.absolute())
 
-        if save_file is None:
+        if not folder_selected:
             return
 
-        combine_csv_to_excel(self.folder_path.get(), save_file.name)
+        split_excel_to_csv(self.file_path.get(), folder_selected)
 
         self.status_label.config(
-            text="Done. Saved to "+save_file.name, foreground="green")
+            text="Done. Saved to "+str(Path(folder_selected).absolute()), foreground="green")
 
     def browse_folder(self):
         folder_selected = filedialog.askdirectory(
@@ -151,7 +157,6 @@ class FileInputApp:
         )
         if file_selected:
             self.file_path.set(file_selected)
-            self.validate_paths()
 
     def validate_paths(self):
         folder = self.folder_path.get()
