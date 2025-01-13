@@ -141,7 +141,7 @@ class FileInputApp:
         file_path = Path(self.file_path.get())
         file_name = file_path.stem.split('.')[0]
 
-        postfix = time.strftime("-split %d-%m-%Y %H.%M.%S")
+        postfix = time.strftime("-split %d-%m-%Y %H.%M")
         output_path = str(Path(file_path.parent, file_name+postfix))
 
         print(output_path)
