@@ -1,4 +1,5 @@
 import os
+import time
 import pandas as pd
 import tkinter as tk
 from tkinter import filedialog, ttk
@@ -14,15 +15,16 @@ def combine_csv_to_excel(csv_folder, output_excel_file):
         if file.endswith('.csv'):
             file_path = os.path.join(csv_folder, file)
             # Read CSV into a dataframe
-            df = pd.read_csv(file_path)
+            df = pd.read_csv(file_path, header=None)
 
-            df.insert(0, 'Source Name', [file] * (len(df)))
+            df.insert(0, 'Source.Name', [file] * (len(df)))
             dataframes.append(df)
 
     # Check if there are any CSV files
     if not dataframes:
-        print("No CSV files found in the folder.")
-        return
+        msg = "No CSV files found in the folder."
+        print(msg)
+        return False, msg
 
     # Concatenate all dataframes
     combined_df = pd.concat(dataframes, ignore_index=True)
@@ -32,6 +34,8 @@ def combine_csv_to_excel(csv_folder, output_excel_file):
 
     print(f"Combined data has been saved to {output_excel_file}")
 
+    return True, "Done. Saved to "+output_excel_file
+
 
 def split_excel_to_csv(input_excel_file, output_folder):
     # Read the Excel file into a dataframe
@@ -40,21 +44,23 @@ def split_excel_to_csv(input_excel_file, output_folder):
     # Ensure the output folder exists
     os.makedirs(output_folder, exist_ok=True)
 
-    # Check if the 'Source Name' column exists
-    if 'Source Name' not in df.columns:
-        print("The 'Source Name' column is missing in the Excel file.")
-        return
+    if 'Source.Name' not in df.columns:
+        msg = "The 'Source.Name' column is missing in the Excel file."
+        print(msg)
+        return False, msg
 
-    # Group by the 'Source Name' column and save each group as a CSV file
-    for source_file, group in df.groupby('Source Name'):
-        # Remove the 'Source Name' column before saving
-        group = group.drop(columns=['Source Name'])
+    # Group by the 'Source.Name' column and save each group as a CSV file
+    for source_file, group in df.groupby('Source.Name'):
+        # Remove the 'Source.Name' column before saving
+        group = group.drop(columns=['Source.Name'])
 
         # Save the group to a CSV file
         output_csv_file = os.path.join(output_folder, source_file)
-        group.to_csv(output_csv_file, index=False)
+        group.to_csv(output_csv_file, index=False, header=False)
 
         print(f"Saved data for '{source_file}' to {output_csv_file}")
+
+    return True, "Done. Saved to "+output_folder
 
 
 class FileInputApp:
@@ -69,7 +75,7 @@ class FileInputApp:
 
         # Folder input section
         self.folder_frame = ttk.LabelFrame(
-            self.main_frame, text="Merge multiple CSV to Excel", padding="5")
+            self.main_frame, text="Append multiple CSV to Excel", padding="5")
         self.folder_frame.grid(
             row=0, column=0, columnspan=2, sticky=(tk.W, tk.E), pady=5)
 
@@ -115,20 +121,16 @@ class FileInputApp:
                 title="Warning", message="Please select the CSV folder first")
             return
 
-        initial_dir = Path(self.folder_path.get())
-        save_file = filedialog.asksaveasfile(
-            title='Save Excel file',
-            initialdir=initial_dir.parent.absolute(),
-            mode='w',
-            defaultextension=".xlsx")
+        postfix = time.strftime(".%d-%m-%Y %H.%M.xlsx")
+        output_path = self.folder_path.get()+postfix
 
-        if save_file is None:
-            return
+        print(output_path)
 
-        combine_csv_to_excel(self.folder_path.get(), save_file.name)
+        success, msg = combine_csv_to_excel(
+            self.folder_path.get(), output_path)
 
         self.status_label.config(
-            text="Done. Saved to "+save_file.name, foreground="green")
+            text=msg, foreground="green" if success else "red")
 
     def split_xlsx(self):
         if not self.file_path.get():
@@ -136,18 +138,19 @@ class FileInputApp:
                 title="Warning", message="Please select the Excel file first")
             return
 
-        initial_dir = Path(self.file_path.get())
-        folder_selected = filedialog.askdirectory(
-            title="Choose folder to save CSV output",
-            initialdir=initial_dir.parent.absolute())
+        file_path = Path(self.file_path.get())
+        file_name = file_path.stem.split('.')[0]
 
-        if not folder_selected:
-            return
+        postfix = time.strftime("-split %d-%m-%Y %H.%M.%S")
+        output_path = str(Path(file_path.parent, file_name+postfix))
 
-        split_excel_to_csv(self.file_path.get(), folder_selected)
+        print(output_path)
+
+        success, msg = split_excel_to_csv(
+            self.file_path.get(), output_path)
 
         self.status_label.config(
-            text="Done. Saved to "+str(Path(folder_selected).absolute()), foreground="green")
+            text=msg, foreground="green" if success else "red")
 
     def browse_folder(self):
         folder_selected = filedialog.askdirectory(
@@ -164,24 +167,6 @@ class FileInputApp:
         )
         if file_selected:
             self.file_path.set(file_selected)
-
-    def validate_paths(self):
-        folder = self.folder_path.get()
-        file = self.file_path.get()
-
-        if folder and file:
-            folder_path = Path(folder)
-            file_path = Path(file)
-
-            if folder_path.is_dir() and file_path.is_file():
-                self.status_label.config(
-                    text="Both paths are valid", foreground="green")
-            else:
-                self.status_label.config(
-                    text="Invalid path(s) selected", foreground="red")
-        else:
-            self.status_label.config(
-                text="Please select both folder and file", foreground="blue")
 
 
 def main():
