@@ -16,7 +16,7 @@ def combine_csv_to_excel(csv_folder, output_excel_file):
             # Read CSV into a dataframe
             df = pd.read_csv(file_path)
 
-            df.insert(0, 'Source File', [file] * (len(df)))
+            df.insert(0, 'Source Name', [file] * (len(df)))
             dataframes.append(df)
 
     # Check if there are any CSV files
@@ -40,15 +40,15 @@ def split_excel_to_csv(input_excel_file, output_folder):
     # Ensure the output folder exists
     os.makedirs(output_folder, exist_ok=True)
 
-    # Check if the 'Source File' column exists
-    if 'Source File' not in df.columns:
-        print("The 'Source File' column is missing in the Excel file.")
+    # Check if the 'Source Name' column exists
+    if 'Source Name' not in df.columns:
+        print("The 'Source Name' column is missing in the Excel file.")
         return
 
-    # Group by the 'Source File' column and save each group as a CSV file
-    for source_file, group in df.groupby('Source File'):
-        # Remove the 'Source File' column before saving
-        group = group.drop(columns=['Source File'])
+    # Group by the 'Source Name' column and save each group as a CSV file
+    for source_file, group in df.groupby('Source Name'):
+        # Remove the 'Source Name' column before saving
+        group = group.drop(columns=['Source Name'])
 
         # Save the group to a CSV file
         output_csv_file = os.path.join(output_folder, source_file)
